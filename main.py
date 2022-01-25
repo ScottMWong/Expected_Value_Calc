@@ -1,4 +1,3 @@
-import tkinter
 
 
 def flatten_pair(pair):
@@ -26,3 +25,16 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+def get_pathway():
+    while True:
+        num_pathways = input("Input number of pathways:")
+        try:
+            num_paths = int(num_pathways)
+            if num_paths < 1:
+                print("Please input a positive integer")
+            elif num_paths == 1:
+            else:
+
+        except:
+            print("Invalid input detected, please try again")
