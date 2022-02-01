@@ -1,14 +1,7 @@
-def main():
-    print(flatten_list([[0.5,-3],[0.5,4]]))
-
-
-if __name__ == "__main__":
-    main()
-
 
 # Get expected value of an event pair
 def flatten_pair(pair):
-    return pair[0] * pair[1]
+    return float(pair[0]) * float(pair[1])
 
 
 # Checks if the list contains any event pairs, and if so tries to have them evaluated
@@ -27,7 +20,10 @@ def check_if_list_pair(pairs_list):
 # Get the expected value of a list of outcomes
 def flatten_list(pairs_list):
     if isinstance(pairs_list[0],float):
-        return pairs_list[0] * sum(map(check_if_list_pair, pairs_list[1]))
+        if float(pairs_list[1]):
+            return flatten_pair(pairs_list)
+        else:
+            return pairs_list[0] * sum(map(check_if_list_pair, pairs_list[1]))
     return sum(map(check_if_list_pair, pairs_list))
 
 
@@ -43,11 +39,11 @@ def get_unique_pathways():
                 return get_pair()
             else:
                 unique_events = []
-                for i in range(1, num_unique_paths + 1):
-                    print("This is top level event " + i + " of " + num_unique_paths)
+                for i in range(1, (num_unique_paths + 1)):
+                    print("This is top level event " + str(i) + " of " + num_unique_pathways)
                     unique_events.append(get_pathway())
                 return unique_events
-        except:
+        except ValueError:
             print("Invalid input detected, please input an integer")
 
 
@@ -68,10 +64,10 @@ def get_pathway():
                         break
                 events = []
                 for i in range(1, num_paths + 1):
-                    print("This is pathway " + i + " of " + num_paths + "leading from the event with probability of " + prob)
+                    print("This is pathway " + str(i) + " of " + num_pathways + " leading from the event with probability of " + str(prob))
                     events.append(get_pathway())
                 return [prob, events]
-        except:
+        except ValueError:
             print("Invalid input detected, please try again")
 
 
@@ -81,6 +77,15 @@ def get_pair():
         prob = input("Input probability of outcome")
         value = input("Input value of outcome")
         if float(prob) and float(value):
-            return [prob, value]
+            return [float(prob), float(value)]
         else:
             print("Invalid input detected, please try again")
+
+
+def main():
+    user_input = get_unique_pathways()
+    print("The expected value of the event is: " + str(flatten_list(user_input)))
+
+
+if __name__ == "__main__":
+    main()
