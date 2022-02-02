@@ -1,3 +1,4 @@
+import re
 
 # Get expected value of an event pair
 def flatten_pair(pair):
@@ -80,6 +81,24 @@ def get_pair():
             return [float(prob), float(value)]
         else:
             print("Invalid input detected, please try again")
+
+
+# regex for start of new sub-pathway, group 0 is prob
+regex_subpath_end = re.compile("[[]([.\d]*)[,]")
+# regex for probability-value pair, group 0 is prob and group 1 is value
+regex_pair = re.compile("[[]([.\d]*)[,]([.\d]*)[]]")
+# regex for end of sub-pathway
+regex_subpath_end = re.compile("[]]")
+
+
+def strip_whitespace(input_string):
+    return input_string.replace(" ", "")
+
+
+def parse_file(file_pathway):
+    file = open(file_pathway, "r")
+    file.close()
+    return
 
 
 def main():
