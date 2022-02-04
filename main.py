@@ -84,7 +84,7 @@ def get_pair():
 
 
 # regex for start of new sub-pathway, group 0 is prob
-regex_subpath_end = re.compile("[[]([.\d]*)[,]")
+regex_subpath_start = re.compile("[[]([.\d]*)[,]")
 # regex for probability-value pair, group 0 is prob and group 1 is value
 regex_pair = re.compile("[[]([.\d]*)[,]([.\d]*)[]]")
 # regex for end of sub-pathway
@@ -97,8 +97,46 @@ def strip_whitespace(input_string):
 
 def parse_file(file_pathway):
     file = open(file_pathway, "r")
+    try:
+        events = top_level_file_read(file)
+        file.close()
+        return events
+    except ValueError:
+        print("File was incorrectly formatted!")
     file.close()
     return
+
+# This is the controlling function for reading an input file. If this function reaches the end of a file, we know that
+# the file was properly formatted and can return the events list.
+# Checking if object exists is slightly inefficient, but more readable
+def top_level_file_read(file):
+    events = []
+    while True:
+        line = file.readline()
+        if len(line) == 0:
+            break
+        elif regex_pair.match(line):
+            events.append(read_pair(line))
+        elif regex_subpath_start.match(line):
+            subpath_start = regex_subpath_start.match(line)
+            subpath = []
+            subpath.append(float(subpath_start.group(1)))
+            subpath.append(read_subpath(file))
+            events.append(subpath)
+        else:
+            return ValueError
+    return events
+
+# Given a line we know has a probability-value pair, return the pair as a list
+def read_pair(line):
+    pair = regex_pair.match(line)
+    pair_list = []
+    for group in pair.groups():
+        pair_list.append(float(group))
+    return pair_list
+
+# After we detect the start of an event subpath, pass the file to this function to properly format the subpath
+def read_subpath(file):
 
 
 def main():
