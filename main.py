@@ -106,13 +106,15 @@ def parse_file(file_pathway):
     file.close()
     return
 
+
 # This is the controlling function for reading an input file. If this function reaches the end of a file, we know that
 # the file was properly formatted and can return the events list.
 # Checking if object exists is slightly inefficient, but more readable
 def top_level_file_read(file):
     events = []
     while True:
-        line = file.readline()
+        # Remove all white space from the input line!
+        line = file.readline().replace(" ", "")
         if len(line) == 0:
             break
         elif regex_pair.match(line):
@@ -137,6 +139,22 @@ def read_pair(line):
 
 # After we detect the start of an event subpath, pass the file to this function to properly format the subpath
 def read_subpath(file):
+    subpath = []
+    while True:
+        # Remove all white space from the input line!
+        line = file.readline().replace(" ", "")
+        if regex_pair.match(line):
+            subpath.append(read_pair(line))
+        elif regex_subpath_start.match(line):
+            new_subpath_start = regex_subpath_start.match(line)
+            new_subpath = []
+            new_subpath.append(float(new_subpath_start.group(1)))
+            new_subpath.append(read_subpath(file))
+            subpath.append(new_subpath)
+        elif regex_subpath_end.match(line):
+            return subpath
+        else:
+            return ValueError
 
 
 def main():
