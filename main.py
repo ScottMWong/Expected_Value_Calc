@@ -1,4 +1,6 @@
 import re
+import sys
+
 
 # Get expected value of an event pair
 def flatten_pair(pair):
@@ -20,12 +22,13 @@ def check_if_list_pair(pairs_list):
 
 # Get the expected value of a list of outcomes
 def flatten_list(pairs_list):
-    if isinstance(pairs_list[0],float):
-        if float(pairs_list[1]):
-            return flatten_pair(pairs_list)
-        else:
+    if isinstance(pairs_list[0],list):
+        return sum(map(check_if_list_pair, pairs_list))
+    else:
+        if list(pairs_list[1]):
             return pairs_list[0] * sum(map(check_if_list_pair, pairs_list[1]))
-    return sum(map(check_if_list_pair, pairs_list))
+        else:
+            return flatten_pair(pairs_list)
 
 
 # This is the entry function into user input, will generate the top level event-outcome pairs
@@ -37,7 +40,8 @@ def get_unique_pathways():
             if num_unique_paths < 1:
                 print("Please input a positive integer")
             elif num_unique_paths == 1:
-                return get_pair()
+                print("This is top level event 1 of 1")
+                return get_pathway()
             else:
                 unique_events = []
                 for i in range(1, (num_unique_paths + 1)):
@@ -60,14 +64,15 @@ def get_pathway():
                 return get_pair()
             else:
                 while True:
-                    prob = input("Input probability of this event pathway")
+                    prob = input("Input probability of this event")
                     if float(prob):
                         break
+                    print("Please input a number!")
                 events = []
                 for i in range(1, num_paths + 1):
                     print("This is pathway " + str(i) + " of " + num_pathways + " leading from the event with probability of " + str(prob))
                     events.append(get_pathway())
-                return [prob, events]
+                return [float(prob), events]
         except ValueError:
             print("Invalid input detected, please try again")
 
@@ -84,11 +89,11 @@ def get_pair():
 
 
 # regex for start of new sub-pathway, group 0 is prob
-regex_subpath_start = re.compile("[[]([.\d]*)[,]")
+regex_subpath_start = re.compile("[/[]([.\d]*)[,]")
 # regex for probability-value pair, group 0 is prob and group 1 is value
-regex_pair = re.compile("[[]([.\d]*)[,]([.\d]*)[]]")
+regex_pair = re.compile("[/[]([.\d]*)[,]([.\d]*)[/]]")
 # regex for end of sub-pathway
-regex_subpath_end = re.compile("[]]")
+regex_subpath_end = re.compile("[/]]")
 
 
 def strip_whitespace(input_string):
@@ -156,10 +161,23 @@ def read_subpath(file):
         else:
             return ValueError
 
-
+# Q for quit, R for read file and M for manual input
 def main():
-    user_input = get_unique_pathways()
-    print("The expected value of the event is: " + str(flatten_list(user_input)))
+    while True:
+        mode = (input("Input R(/r) to read from file, M(/m) to input manually, Q(/q) to quit")).upper()[0]
+        if mode == "Q":
+            sys.exit(0)
+        elif mode == "R":
+            print("File input selected")
+            file_name = input("Please input file name")
+            file_input = top_level_file_read(file_name)
+            print("The expected value of the event is: " + str(flatten_list(file_input)))
+        elif mode == "M":
+            print("Manual input selected")
+            user_input = get_unique_pathways()
+            print("The expected value of the event is: " + str(flatten_list(user_input)))
+        else:
+            print("Invalid input detected, please try again")
 
 
 if __name__ == "__main__":
