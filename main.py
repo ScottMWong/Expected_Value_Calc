@@ -89,11 +89,11 @@ def get_pair():
 
 
 # regex for start of new sub-pathway, group 0 is prob
-regex_subpath_start = re.compile("[/[]([.\d]*)[,]")
+regex_subpath_start = re.compile("[\[]([.\d]*)[,]")
 # regex for probability-value pair, group 0 is prob and group 1 is value
-regex_pair = re.compile("[/[]([.\d]*)[,]([.\d]*)[/]]")
+regex_pair = re.compile("[\[]([.\d]*)[,]([.\d]*)[\]]")
 # regex for end of sub-pathway
-regex_subpath_end = re.compile("[/]]")
+regex_subpath_end = re.compile("[\]]")
 
 
 def strip_whitespace(input_string):
@@ -162,6 +162,8 @@ def read_subpath(file):
             return ValueError
 
 # Q for quit, R for read file and M for manual input
+# For reading a file, loop until you get a valid file to read
+# Then try to calculate result, if you can't tell the user
 def main():
     while True:
         mode = (input("Input R(/r) to read from file, M(/m) to input manually, Q(/q) to quit")).upper()[0]
@@ -169,9 +171,17 @@ def main():
             sys.exit(0)
         elif mode == "R":
             print("File input selected")
-            file_name = input("Please input file name")
-            file_input = top_level_file_read(file_name)
-            print("The expected value of the event is: " + str(flatten_list(file_input)))
+            while True:
+                file_name = input("Please input file name")
+                try:
+                    file_input = parse_file(file_name)
+                    break
+                except FileNotFoundError:
+                    print("File not found, please try again")
+            try:
+                print("The expected value of the event is: " + str(flatten_list(file_input)))
+            except TypeError:
+                print("File was incorrectly formatted, please correct and try again")
         elif mode == "M":
             print("Manual input selected")
             user_input = get_unique_pathways()
